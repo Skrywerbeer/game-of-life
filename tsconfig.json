@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"module" : "ES6",
+		"removeComments": true,
+		"lib" : [
+			"es2022",
+			"dom"
+		],
+		"target" : "es2022",
+	},
+	"files": [
+		"main.ts",
+	]
+}
