@@ -189,45 +189,67 @@ function oscillatorTest() {
 	}
 }
 
-class GameView {
+class GameOfLife extends HTMLElement {
 	cellSize: number = 5;
-	model: GameOfLifeModel = new GameOfLifeModel(100, 100);
-	view: HTMLElement = document.getElementById("gameView") !;
-	divs: NodeListOf<Element> = document.querySelectorAll("#gameView div");
+	model: GameOfLifeModel = null;
+
+	view: HTMLElement = document.createElement("section") !;
+	divs: NodeListOf<Element> = this.view.querySelectorAll("div");
 
 	constructor() {
+		super();
+		const DEFAULT_COUNT = 50;
+		const rows =
+			this.hasAttribute("rows") ?
+			Number(this.getAttribute("rows")) : DEFAULT_COUNT;
+		if (isNaN(rows))
+			throw new Error("game-of-life: row attribute invalid.")
+		const columns =
+			this.hasAttribute("columns") ?
+			Number(this.getAttribute("columns")) : DEFAULT_COUNT;
+		if (isNaN(columns))
+			throw new Error("game-of-life: column attribute invalid.");
+		this.model = new GameOfLifeModel(rows, columns);
+		this.model.randomize();
+		
+		this.attachShadow({mode: "open"});
+		const styleLink = document.createElement("link") as HTMLLinkElement;
+		styleLink.rel = "stylesheet";
+		styleLink.href = "gameOfLife.css";
 		this.adjustGridLayout();
 		this.adjustDivCount();
 		this.updateDivColors();
+		this.shadowRoot.append(this.view, styleLink);
+		const INTERVAL = this.hasAttribute("interval") ?
+			Number(this.getAttribute("interval")) : 1000;
+		if (isNaN(INTERVAL))
+			throw new Error("game-of-life: interval attribute invalid.");
+		setInterval(() => {this.iterate()}, INTERVAL);
+					
 	}
 
 	adjustGridLayout(): void {
 		this.view.style.gridTemplateRows =
-			//`repeat(${this.model.rows}, ${this.cellSize}px)`;
 			`repeat(${this.model.rows}, 1fr)`;
 		this.view.style.gridTemplateColumns =
-			//`repeat(${this.model.columns}, ${this.cellSize}px)`;
 			`repeat(${this.model.columns}, 1fr)`;
 	}
 	adjustDivCount(): void {
 		const MODEL_CELL_COUNT = this.model.rows*this.model.columns;
-		while (this.view.childElementCount > MODEL_CELL_COUNT)
-			this.view.removeChild(this.view.lastElementChild);
-		while (this.view.childElementCount < MODEL_CELL_COUNT) {
-			let div = document.createElement("div");
-			div.className = "gameCell";
-			this.view.appendChild(div);
-		}
+		while (this.view.childElementCount < MODEL_CELL_COUNT)
+			this.view.appendChild(document.createElement("div"));
+		this.divs = this.view.querySelectorAll("div");
 	}
 	updateDivColors(): void {
 		let index = 0;
-		const divs = document.querySelectorAll("#gameView div");
 		for (let i = 0; i < this.model.rows; ++i) {
 			for (let j = 0; j < this.model.columns; ++j) {
 				if (this.model.lifeAt(i, j))
-					divs[index].className = "alive";
+					//this.divs[index].className = "alive";
+					this.divs[index].setAttribute("part", "cell living");
 				else
-					divs[index].className = "dead";
+					//this.divs[index].className = "dead";
+					this.divs[index].setAttribute("part", "cell deceased");
 				index++;
 			}
 		}
@@ -243,21 +265,22 @@ class GameView {
 				column: index % this.model.columns};
 	}
 }
+customElements.define("game-of-life", GameOfLife)
 
-let game = new GameView();
+// let game = new GameOfLife();
 
 //game.model.reviveCell(4, 4);
 //game.model.reviveCell(4, 5);
 //game.model.reviveCell(4, 6);
-game.model.randomize();
-game.updateDivColors();
+// game.model.randomize();
+// game.updateDivColors();
 
-game.view.addEventListener("click", (event) => {
-	if (event.target === game.view)
-		return;
-	console.log(game.divToCoodinates(event.target as HTMLDivElement));
-});
+// game.view.addEventListener("click", (event) => {
+// 	if (event.target === game.view)
+// 		return;
+// 	console.log(game.divToCoodinates(event.target as HTMLDivElement));
+// });
 
-setInterval(() => {
-	game.iterate();
-}, 500);
+// setInterval(() => {
+// 	game.iterate();
+// }, 500);

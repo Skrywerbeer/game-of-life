@@ -3,10 +3,37 @@
 <html>
   <head>
 	<link href="main.css" rel="stylesheet" />
+	<script src="gameOfLife.js" defer></script>
   </head>
 
   <body>
-	<section id="gameView"></section>
-	<script src="main.js"></script>
+	<section>
+	  <game-of-life></game-of-life>
+	  <h1>Conways Game of Life.</h1>
+	  <h2>As an html tag</h2>
+	  <p>
+		Anyone with an interest in mathematics and computers has
+		probably heard of Conways Game of Life and should recognize
+		a running world when they see one. So I thought it would make
+		a great WebComponent.
+	  </p>
+	  <h2>Tag attributes</h2>
+	  <dl>
+		<dt>rows</dt>
+		<dd>The game's number of rows, defaults to 50.</dd>
+		<dt>columns</dt>
+		<dd>The game's number of columns, defaults to 50.</dd>
+		<dt>running</dt>
+		<dd>Boolean value controlling the running state of the game, defaults to false.</dd>
+		<dt>interval</dt>
+		<dd>The number of miliseconds between iterations, defaults to 1000.</dd>
+	  </dl>
+	  <h2>Styling</h2>
+	  <p>
+		From css the game-of-life element can be styled using the ::part()
+		psudo element. Use ::part(cell) to select all of the game's cells,
+		handy for setting transitions. Use ::part(living), ::part(deceasced)
+		to respectivly select living or deceased cells.
+	  </p>
   </body>
 </html>  

@@ -1,19 +1,25 @@
-#gameView {
-	display: grid;
-	grid-template-columns: 50px 50px 50px;
-	grid-template-rows:  50px 50px 50px;
-	width: 100%;
-	aspect-ratio: 1;
+h1 {
+	font-size: xx-large;
 }
 
-#gameView div {
-	box-sizing: border-box;
-	/* transition: background-color 200ms; */
+dt {
+	font-weight: bold;
 }
 
-.alive {
-	background-color: limegreen;
+game-of-life {
+	width: 200px;
+
+	display: block;
 }
-.dead {
-	background-color: firebrick;
+
+game-of-life::part(cell) {
+	transition: background-color 800ms;
+}
+
+game-of-life::part(living) {
+	background-color: royalblue;
+}
+
+game-of-life::part(deceased) {
+	background-color: #1c1c1c;
 }
