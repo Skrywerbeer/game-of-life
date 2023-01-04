@@ -8,6 +8,12 @@ interface CellCoordinates {
 	column: number;
 }
 
+interface CellChanges {
+	row: number;
+	column: number;
+	state: boolean;
+}
+
 class CellNeighbours {
 	static directions: Array<string> = ["north", "northEast",
 										"east", "southEast",
@@ -119,18 +125,33 @@ class GameOfLifeModel {
 		}
 		return neighbours;
 	}
-	iterate(): void {
-		let copy = this.copy();
-		for (let i = 0; i < copy.rows; ++i) {
-			for (let j = 0; j < copy.columns; ++j) {
+	computeChanges(): Array<CellChanges> {
+		let changes = Array();
+		for (let i = 0; i < this.cells.length; ++i) {
+			for (let j = 0; j < this.cells.at(i).length; ++j) {
 				const neighbours = this.neighbours(i, j);
 				if (neighbours.living === 3)
-					copy.reviveCell(i, j);
+					changes.push({row: i,
+								  column: j,
+								  state: true});
 				else if (neighbours.living !== 2)
-					copy.killCell(i, j);
+					changes.push({row: i,
+								  column: j,
+								  state: false});
 			}
 		}
-		this.cells = copy.cells;
+		return changes;
+	}
+	applyChanges(changes: Array<CellChanges>): void {
+		for (let change of changes) {
+			if (change.state)
+				this.reviveCell(change.row, change.column)
+			else
+				this.killCell(change.row, change.column);
+		}
+	}
+	iterate(): void {
+		this.applyChanges(this.computeChanges());
 		this.iteration++;
 	}
 	// Adds a row to the end.
