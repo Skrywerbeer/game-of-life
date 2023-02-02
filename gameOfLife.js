@@ -196,13 +196,11 @@ class GameOfLife extends HTMLElement {
         this.model = new GameOfLifeModel(rows, columns);
         this.model.randomize();
         this.attachShadow({ mode: "open" });
-        const styleLink = document.createElement("link");
-        styleLink.rel = "stylesheet";
-        styleLink.href = "gameOfLife.css";
+        this.view.setAttribute("style", "display: grid; width: 100%; aspect-ratio: 1;");
+        this.shadowRoot.append(this.view);
         this.adjustGridLayout();
         this.adjustDivCount();
         this.updateDivColors();
-        this.shadowRoot.append(this.view, styleLink);
         const INTERVAL = this.hasAttribute("interval") ?
             Number(this.getAttribute("interval")) : 1000;
         if (isNaN(INTERVAL))

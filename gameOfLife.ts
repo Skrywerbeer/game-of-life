@@ -235,13 +235,16 @@ class GameOfLife extends HTMLElement {
 		
 		this.attachShadow({mode: "open"});
 		// TODO: do we need a seperate stylesheet?
-		const styleLink = document.createElement("link") as HTMLLinkElement;
-		styleLink.rel = "stylesheet";
-		styleLink.href = "gameOfLife.css";
+		this.view.setAttribute("style",
+							   "display: grid; width: 100%; aspect-ratio: 1;");
+		this.shadowRoot.append(this.view);
+		// const styleLink = document.createElement("link") as HTMLLinkElement;
+		// styleLink.rel = "stylesheet";
+		// styleLink.href = "gameOfLife.css";
 		this.adjustGridLayout();
 		this.adjustDivCount();
 		this.updateDivColors();
-		this.shadowRoot.append(this.view, styleLink);
+		// this.shadowRoot.append(this.view, styleLink);
 		const INTERVAL = this.hasAttribute("interval") ?
 			Number(this.getAttribute("interval")) : 1000;
 		if (isNaN(INTERVAL))
