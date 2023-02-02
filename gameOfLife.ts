@@ -234,6 +234,7 @@ class GameOfLife extends HTMLElement {
 		this.model.randomize();
 		
 		this.attachShadow({mode: "open"});
+		// TODO: do we need a seperate stylesheet?
 		const styleLink = document.createElement("link") as HTMLLinkElement;
 		styleLink.rel = "stylesheet";
 		styleLink.href = "gameOfLife.css";
@@ -256,6 +257,7 @@ class GameOfLife extends HTMLElement {
 			`repeat(${this.model.columns}, 1fr)`;
 	}
 	adjustDivCount(): void {
+		// TODO: this takes forever. FIX!
 		const MODEL_CELL_COUNT = this.model.rows*this.model.columns;
 		while (this.view.childElementCount < MODEL_CELL_COUNT)
 			this.view.appendChild(document.createElement("div"));
