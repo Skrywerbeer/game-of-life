@@ -197,19 +197,6 @@ class GameOfLifeModel {
 	
 }
 
-function oscillatorTest() {
-	// Tests
-	let game = new GameOfLifeModel(25, 25);
-	game.reviveCell(11, 11);
-	game.reviveCell(11, 12);
-	game.reviveCell(11, 13)
-
-	for (let i = 0; i < 10; ++i) {
-		game.printState();
-		game.iterate();
-	}
-}
-
 class GameOfLife extends HTMLElement {
 	cellSize: number = 5;
 	model: GameOfLifeModel = null;
@@ -292,21 +279,3 @@ class GameOfLife extends HTMLElement {
 	}
 }
 customElements.define("game-of-life", GameOfLife)
-
-// let game = new GameOfLife();
-
-//game.model.reviveCell(4, 4);
-//game.model.reviveCell(4, 5);
-//game.model.reviveCell(4, 6);
-// game.model.randomize();
-// game.updateDivColors();
-
-// game.view.addEventListener("click", (event) => {
-// 	if (event.target === game.view)
-// 		return;
-// 	console.log(game.divToCoodinates(event.target as HTMLDivElement));
-// });
-
-// setInterval(() => {
-// 	game.iterate();
-// }, 500);
