@@ -167,45 +167,73 @@ class GameOfLifeModel {
         console.log("----------------------------------------");
     }
 }
-function oscillatorTest() {
-    let game = new GameOfLifeModel(25, 25);
-    game.reviveCell(11, 11);
-    game.reviveCell(11, 12);
-    game.reviveCell(11, 13);
-    for (let i = 0; i < 10; ++i) {
-        game.printState();
-        game.iterate();
-    }
-}
 class GameOfLife extends HTMLElement {
     cellSize = 5;
+    static DEFAULT_COUNT = 50;
     model = null;
     view = document.createElement("section");
     divs = this.view.querySelectorAll("div");
+    intervalID = 0;
+    static get observedAttributes() {
+        return ["rows", "columns", "timer", "interval"];
+    }
+    get rows() {
+        const rows = this.hasAttribute("rows") ?
+            Number(this.getAttribute("rows")) : GameOfLife.DEFAULT_COUNT;
+        if (isNaN(rows))
+            throw new Error("game-of-life: row attribute is NaN.");
+        return rows;
+    }
+    get columns() {
+        const columns = this.hasAttribute("columns") ?
+            Number(this.getAttribute("columns")) : GameOfLife.DEFAULT_COUNT;
+        if (isNaN(columns))
+            throw new Error("game-of-life: column attribute is NaN.");
+        return columns;
+    }
+    get timer() {
+        return this.hasAttribute("timer") ?
+            this.getAttribute("timer") : "run";
+    }
+    get interval() {
+        const interval = this.hasAttribute("interval") ?
+            Number(this.getAttribute("interval")) : 1000;
+        if (isNaN(interval))
+            throw new Error("game-of-life: interval attribute is NaN.");
+        return interval;
+    }
     constructor() {
         super();
-        const DEFAULT_COUNT = 50;
-        const rows = this.hasAttribute("rows") ?
-            Number(this.getAttribute("rows")) : DEFAULT_COUNT;
-        if (isNaN(rows))
-            throw new Error("game-of-life: row attribute invalid.");
-        const columns = this.hasAttribute("columns") ?
-            Number(this.getAttribute("columns")) : DEFAULT_COUNT;
-        if (isNaN(columns))
-            throw new Error("game-of-life: column attribute invalid.");
-        this.model = new GameOfLifeModel(rows, columns);
-        this.model.randomize();
         this.attachShadow({ mode: "open" });
         this.view.setAttribute("style", "display: grid; width: 100%; aspect-ratio: 1;");
         this.shadowRoot.append(this.view);
+    }
+    connectedCallback() {
+        this.model = new GameOfLifeModel(this.rows, this.columns);
+        this.model.randomize();
         this.adjustGridLayout();
         this.adjustDivCount();
         this.updateDivColors();
-        const INTERVAL = this.hasAttribute("interval") ?
-            Number(this.getAttribute("interval")) : 1000;
-        if (isNaN(INTERVAL))
-            throw new Error("game-of-life: interval attribute invalid.");
-        setInterval(() => { this.iterate(); }, INTERVAL);
+        if (this.timer === "run")
+            this.startTimer();
+    }
+    attributeChangedCallback(attr, previous, current) {
+        switch (attr) {
+            case ("rows"):
+                break;
+            case ("columns"):
+                break;
+            case ("timer"):
+                if (current === "run")
+                    this.startTimer();
+                else
+                    this.stopTimer();
+                break;
+            case ("interval"):
+                if (this.intervalID != 0)
+                    this.restartTimer();
+                break;
+        }
     }
     adjustGridLayout() {
         this.view.style.gridTemplateRows =
@@ -234,6 +262,17 @@ class GameOfLife extends HTMLElement {
     iterate() {
         this.model.iterate();
         this.updateDivColors();
+    }
+    startTimer() {
+        this.intervalID = setInterval(() => { this.iterate(); }, this.interval);
+    }
+    stopTimer() {
+        clearInterval(this.intervalID);
+        this.intervalID = 0;
+    }
+    restartTimer() {
+        this.stopTimer();
+        this.startTimer();
     }
     divToCoodinates(div) {
         const cells = this.view.getElementsByTagName("div");

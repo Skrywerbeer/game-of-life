@@ -199,45 +199,78 @@ class GameOfLifeModel {
 
 class GameOfLife extends HTMLElement {
 	cellSize: number = 5;
+	private static DEFAULT_COUNT = 50;
 	model: GameOfLifeModel = null;
 
 	view: HTMLElement = document.createElement("section") !;
 	divs: NodeListOf<Element> = this.view.querySelectorAll("div");
 
+	private intervalID = 0;
+
+	static get observedAttributes(): Array<string> {
+		return ["rows", "columns", "timer", "interval"];
+	}
+	get rows(): number {
+		const rows = this.hasAttribute("rows") ?
+			Number(this.getAttribute("rows")) : GameOfLife.DEFAULT_COUNT;
+		if (isNaN(rows))
+			throw new Error("game-of-life: row attribute is NaN.")
+		return rows;
+	}
+	get columns(): number {
+		const columns = this.hasAttribute("columns") ?
+			Number(this.getAttribute("columns")) : GameOfLife.DEFAULT_COUNT;
+		if (isNaN(columns))
+			throw new Error("game-of-life: column attribute is NaN.");
+		return columns;
+	}
+	get timer(): string {
+		return this.hasAttribute("timer") ?
+			this.getAttribute("timer") : "run"
+	}
+	get interval(): number {
+		const interval = this.hasAttribute("interval") ?
+			Number(this.getAttribute("interval")) : 1000;
+		if (isNaN(interval))
+			throw new Error("game-of-life: interval attribute is NaN.");
+		return interval;
+	}
+
 	constructor() {
 		super();
-		const DEFAULT_COUNT = 50;
-		const rows =
-			this.hasAttribute("rows") ?
-			Number(this.getAttribute("rows")) : DEFAULT_COUNT;
-		if (isNaN(rows))
-			throw new Error("game-of-life: row attribute invalid.")
-		const columns =
-			this.hasAttribute("columns") ?
-			Number(this.getAttribute("columns")) : DEFAULT_COUNT;
-		if (isNaN(columns))
-			throw new Error("game-of-life: column attribute invalid.");
-		this.model = new GameOfLifeModel(rows, columns);
-		this.model.randomize();
-		
 		this.attachShadow({mode: "open"});
-		// TODO: do we need a seperate stylesheet?
 		this.view.setAttribute("style",
 							   "display: grid; width: 100%; aspect-ratio: 1;");
 		this.shadowRoot.append(this.view);
-		// const styleLink = document.createElement("link") as HTMLLinkElement;
-		// styleLink.rel = "stylesheet";
-		// styleLink.href = "gameOfLife.css";
+	}
+	private connectedCallback(): void {
+		this.model = new GameOfLifeModel(this.rows, this.columns);
+		this.model.randomize();
 		this.adjustGridLayout();
 		this.adjustDivCount();
 		this.updateDivColors();
-		// this.shadowRoot.append(this.view, styleLink);
-		const INTERVAL = this.hasAttribute("interval") ?
-			Number(this.getAttribute("interval")) : 1000;
-		if (isNaN(INTERVAL))
-			throw new Error("game-of-life: interval attribute invalid.");
-		setInterval(() => {this.iterate()}, INTERVAL);
-					
+		if (this.timer === "run")
+			this.startTimer();
+	}
+	private attributeChangedCallback(attr: string,
+									 previous: string,
+									 current: string): void {
+		switch(attr) {
+			case ("rows"):
+				break;
+			case ("columns"):
+				break;
+			case ("timer"):
+				if (current === "run")
+					this.startTimer();
+				else
+					this.stopTimer();
+				break;
+			case ("interval"):
+				if (this.intervalID != 0)
+					this.restartTimer();
+				break;
+		}
 	}
 
 	adjustGridLayout(): void {
@@ -270,6 +303,17 @@ class GameOfLife extends HTMLElement {
 	iterate(): void {
 		this.model.iterate();
 		this.updateDivColors();
+	}
+	startTimer(): void {
+		this.intervalID = setInterval(() => {this.iterate()}, this.interval);
+	}
+	stopTimer(): void {
+		clearInterval(this.intervalID);
+		this.intervalID = 0;
+	}
+	restartTimer(): void {
+		this.stopTimer();
+		this.startTimer();
 	}
 	divToCoodinates(div: HTMLDivElement): CellCoordinates {
 		const cells = this.view.getElementsByTagName("div");
