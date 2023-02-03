@@ -9,6 +9,6 @@
 		"target" : "es2022",
 	},
 	"files": [
-		"gameOfLife.ts",
+		"game-of-life.ts",
 	]
 }
