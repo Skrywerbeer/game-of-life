@@ -8,7 +8,23 @@
 
   <body>
 	<section>
-	  <game-of-life></game-of-life>
+	  <game-of-life timer="stop"></game-of-life>
+	  <button input="button">run</button>
+	  <script>
+		const game = document.querySelector("game-of-life");
+		function toggleRunning() {
+			if (this.innerText === "run") {
+				this.innerText = "stop";
+				game.setAttribute("timer", "run");
+			}
+			else if (this.innerText === "stop") {
+				this.innerText = "run";
+				game.setAttribute("timer", "stop");
+			}
+		}
+		document.querySelector("button").
+			addEventListener("click", toggleRunning);
+	  </script>
 	  <h1>Conways Game of Life.</h1>
 	  <h2>As an html tag</h2>
 	  <p>
@@ -23,8 +39,8 @@
 		<dd>The game's number of rows, defaults to 50.</dd>
 		<dt>columns</dt>
 		<dd>The game's number of columns, defaults to 50.</dd>
-		<dt>running</dt>
-		<dd>Boolean value controlling the running state of the game, defaults to false.</dd>
+		<dt>timer</dt>
+		<dd>Set to "run" to start the iteration timer.</dd>
 		<dt>interval</dt>
 		<dd>The number of miliseconds between iterations, defaults to 1000.</dd>
 	  </dl>
